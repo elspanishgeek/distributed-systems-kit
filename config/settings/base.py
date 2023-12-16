@@ -9,18 +9,29 @@ https://docs.djangoproject.com/en/5.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
 """
-
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 
+# Load secrets from environment variables
+from django.core.exceptions import ImproperlyConfigured
+
+def get_env_var(var_name):
+    """
+    Get the environment variable or return useful exception.
+    """
+    try:
+        return os.environ[var_name]
+    except KeyError:
+        error_message = f'Set the {var_name} environment variable'
+        raise ImproperlyConfigured(error_message)
+
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-eja#qa#@tu(mc2t$%25ts@o73f%lhxri=87bip!&#5j735mo82"
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
