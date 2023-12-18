@@ -1,4 +1,4 @@
-# src/chasing/schema.py
+# src/consistent_hashing/consistent_hashing.py
 from typing import List, Dict, Tuple
 
 from .utils import h

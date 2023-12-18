@@ -1,4 +1,4 @@
-# src/chasing/tests.py
+# src/consistent_hashing/tests.py
 import random
 from functools import reduce
 from typing import List
@@ -6,7 +6,7 @@ from typing import List
 import pytest
 from django.test import TestCase
 
-from ..schema import HashNode, HashRing
+from ..consistent_hashing import HashNode, HashRing
 
 
 # Test Utils

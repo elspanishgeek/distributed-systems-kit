@@ -1,4 +1,4 @@
-# chasing/utils.py
+# consistent_hashing/utils.py
 import hashlib
 
 from django.conf import settings
