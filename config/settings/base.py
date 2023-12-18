@@ -28,6 +28,8 @@ def get_env_var(var_name):
         error_message = f'Set the {var_name} environment variable'
         raise ImproperlyConfigured(error_message)
 
+# Secrets
+SECRET_KEY = get_env_var('SECRET_KEY')
 
 # Connection configs 
 
