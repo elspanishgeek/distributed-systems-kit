@@ -26,9 +26,9 @@ class HashNode:
         return self.huid > other.huid
 
     def __str__(self) -> str:
-        return f"[{self.uid}/{self.huid}[:5]]"
+        return f"[{self.id}/{self.huid[:5]}]"
 
-    def __repr__self(self) -> str:
+    def __repr__(self) -> str:
         return self.__str__()
 
     def get_data_count(self) -> int:
@@ -127,7 +127,7 @@ class HashRing:
         """
         hashed_data_key = h(data_key)
         node = self._find_node(hashed_data_key)
-        return node.retrieve_data(hashed_data_key)
+        return node.retrieve_data(data_key)
 
     def set_data(self, data_key: str, data_value: int) -> bool:
         """

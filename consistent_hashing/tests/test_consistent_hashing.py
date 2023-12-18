@@ -12,7 +12,7 @@ from ..consistent_hashing import HashNode, HashRing
 # Test Utils
 def gen_word():
     length: int = random.randint(5, 26)
-    return 'KEY_' + ''.join(
+    return ''.join(
         [
             random.choice([chr(random.randint(65, 90)), chr(random.randint(97, 123))])
             for _ in range(length)
@@ -20,12 +20,16 @@ def gen_word():
     )
 
 
+def gen_data_tuple():
+    return 'KEY_' + gen_word(), random.randint(0, 999999)
+
+
 def build_hash_ring(node_count: int, data_count: int):
     # Create Nodes, Ring, and populate with data
     node_list: List = [HashNode(gen_word()) for _ in range(node_count)]
     hash_ring: HashRing = HashRing()
     [hash_ring.add_node(node) for node in node_list]
-    [hash_ring.set_data(gen_word(), random.randint(0, 999999)) for _ in range(data_count)]
+    [hash_ring.set_data(*gen_data_tuple()) for _ in range(data_count)]
     return hash_ring
 
 
@@ -96,10 +100,9 @@ class TestSuite(TestCase):
         hash_ring: HashRing = HashRing()
         hash_ring.add_node(test_node)
         
-        print(f' $$$ DATA COUNT: {data_count}')
         # Do
         with pytest.raises(ValueError) as exception:
-            [hash_ring.set_data(gen_word(), random.randint(0, 999999)) for _ in range(data_count)]
+            [hash_ring.set_data(*gen_data_tuple()) for _ in range(data_count)]
 
         # Assert
         assert test_node.id in str(exception.value)
@@ -127,3 +130,31 @@ class TestSuite(TestCase):
 
         # Assert
         assert node_to_remove not in hash_ring.node_list
+
+    def test_should_retrieve_existing_data(self):
+        # Build test data
+        node_count: int = HashRing.MIN_NODES + 10
+        data_count: int = 100
+        hash_ring: HashRing = build_hash_ring(node_count, data_count)
+        test_data_key = 'test_key'
+        test_data_value = 7
+
+        # Do
+        hash_ring.set_data(test_data_key, test_data_value)
+
+        # Assert
+        assert hash_ring.get_data(test_data_key) == test_data_value
+
+    def test_should_fail_when_retrieving_non_existing_data(self):
+        # Build test data
+        node_count: int = HashRing.MIN_NODES + 10
+        data_count: int = 100
+        hash_ring: HashRing = build_hash_ring(node_count, data_count)
+        test_data_key = 'test_key'
+        test_data_value = 7
+
+        # Assert
+        with pytest.raises(KeyError) as exception:
+            hash_ring.get_data(test_data_key)
+
+        assert exception
