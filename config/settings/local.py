@@ -15,6 +15,7 @@ INSTALLED_APPS = [
     'debug_toolbar',
     'bloom_filter',
     'consistent_hashing',
+    'merkle_tree',
 ]
 
 MIDDLEWARE = [
