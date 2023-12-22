@@ -11,7 +11,6 @@ class MerkleTree:
     tree: List[int]
     tree_depth: int
     bucket_index_shift: int  # Shortcut to find leaf with correct bucket
-    bucket_key_limit: int
     bucket_list: List[Dict[str, int]]
     last_update: datetime
 
@@ -20,7 +19,6 @@ class MerkleTree:
         self.tree = [0] * (2 ** (self.tree_depth + 1))
         self.bucket_index_shift = (2 ** self.tree_depth) - 1
         self.bucket_list = [{} for _ in range(bucket_count)]
-        self.bucket_key_limit = int(key_space / bucket_count)
 
     def __eq__(self, other):
         return self.tree[0] == other.tree[0]
@@ -70,12 +68,12 @@ class MerkleTree:
         if self == other:
             return False
 
-        modified_nodes_set: Set = {0}
-        self._traverse_and_replicate(0, other, modified_nodes_set)
-        self._update_modified_nodes(modified_nodes_set)
+        modified_nodes_list: List[int] = [0]
+        self._traverse_and_replicate(0, other, modified_nodes_list)
+        self._update_modified_nodes(modified_nodes_list)
         self._touch()
 
-    def _traverse_and_replicate(self, tree_index, other, modified_nodes_set):
+    def _traverse_and_replicate(self, tree_index, other, modified_nodes_list):
         left_child_index: int = 2 * tree_index + 1
         right_child_index: int = 2 * tree_index + 2
         leaf = False
@@ -91,8 +89,8 @@ class MerkleTree:
         # Traverse left and right side if appropriate
         for child_index in [left_child_index, right_child_index]:
             if self.tree[child_index] != other.tree[child_index]:
-                modified_nodes_set.add(child_index)
-                self._traverse_and_replicate(child_index, other, modified_nodes_set)
+                modified_nodes_list.append(child_index)
+                self._traverse_and_replicate(child_index, other, modified_nodes_list)
 
     def _replicate_bucket(self, tree_index, other):
         bucket_number: int = tree_index - self.bucket_index_shift
@@ -101,8 +99,8 @@ class MerkleTree:
         this_bucket.update(other_bucket)
         self._update_bucket_hash(bucket_number)
 
-    def _update_modified_nodes(self, modified_nodes_set: Set):
-        for index in reversed(list(modified_nodes_set)):
+    def _update_modified_nodes(self, modified_nodes_list: List[int]):
+        for index in reversed(modified_nodes_list):
             left_child_hash: int = self.tree[2 * index + 1]
             right_child_hash: int = self.tree[2 * index + 2]
             self.tree[index] = hash(left_child_hash + right_child_hash)
@@ -114,9 +112,6 @@ class MerkleTree:
     def _perform_insert_validations(self, bucket_number: int) -> None:
         if bucket_number > len(self.bucket_list):
             raise KeyError
-
-        if len(self.bucket_list[bucket_number].keys()) > self.bucket_key_limit:
-            raise IndexError
 
     @staticmethod
     def _get_parent_index(index) -> int:

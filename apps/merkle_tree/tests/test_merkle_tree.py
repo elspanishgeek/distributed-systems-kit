@@ -1,7 +1,23 @@
+import random
 import pytest
 from django.test import TestCase
 
 from ..merkle_tree import MerkleTree
+
+
+# Test Utils
+def gen_word():
+    length: int = random.randint(5, 26)
+    return ''.join(
+        [
+            random.choice([chr(random.randint(65, 90)), chr(random.randint(97, 123))])
+            for _ in range(length)
+        ]
+    )
+
+
+def gen_data_tuple():
+    return 'KEY_' + gen_word(), random.randint(0, 999999)
 
 
 class MyTestCase(TestCase):
@@ -84,3 +100,28 @@ class MyTestCase(TestCase):
         tree_one.replicate_from(tree_two)
         tree_two.replicate_from(tree_one)
         assert tree_one == tree_two
+
+    def test_should_insert_big(self):
+        bucket_count: int = 1024
+        key_space: int = 2**14
+        tree = MerkleTree(bucket_count, key_space)
+
+        [tree.insert(random.randint(0, 1023), *gen_data_tuple()) for _ in range(key_space)]
+        tree.insert(1000, 'test_key', 7)
+
+        assert tree.retrieve(1000, 'test_key') == 7
+
+    def test_should_replicate_correctly_big(self):
+        bucket_count: int = 2**18
+        key_space: int = 2**14
+        tree_one = MerkleTree(bucket_count, key_space)
+        tree_two = MerkleTree(bucket_count, key_space)
+
+        [tree_one.insert(random.randint(0, bucket_count - 1), *gen_data_tuple()) for _ in range(key_space)]
+        [tree_two.insert(random.randint(0, bucket_count - 1), *gen_data_tuple()) for _ in range(key_space)]
+
+        assert tree_one != tree_two
+        tree_one.replicate_from(tree_two)
+        tree_two.replicate_from(tree_one)
+        assert tree_one == tree_two
+
