@@ -52,7 +52,7 @@ class MapReduce:
                             mapping_futures_list.append(mapper_executor.submit(self._mapping_task, chunk))
                             lines_count = 0
                             chunk = []
-                        if log_line_limit > log_line_limit:
+                        if total_lines_count > log_line_limit:
                             print(f'Reached file processing limit ({log_line_limit} lines).')
                             break
 
@@ -130,20 +130,21 @@ class MapReduce:
                 'uids': {},
             }
             for entry in mapped_output[key]:
-                if 'timestamp' in entry:
-                    timestamp = entry.get('timestamp')
+
+                timestamp = entry.get('timestamp')
+                if timestamp is not None:
                     data['timestamps'][timestamp] = data['timestamps'].setdefault(timestamp, 0) + 1
 
-                if 'path' in entry:
-                    path = entry.get('path')
+                path = entry.get('path')
+                if path is not None:
                     data['paths'][path] = data['paths'].setdefault(path, 0) + 1
 
-                if 'code' in entry:
-                    code = entry.get('code')
+                code = entry.get('code')
+                if code is not None:
                     data['codes'][code] = data['codes'].setdefault(code, 0) + 1
 
-                if 'uid' in entry:
-                    uid = entry.get('uid')
+                uid = entry.get('uid')
+                if uid is not None:
                     data['uids'][uid] = data['uids'].setdefault(uid, 0) + 1
 
             output[key] = data
