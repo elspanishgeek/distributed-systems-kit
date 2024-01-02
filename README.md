@@ -5,10 +5,11 @@ Simple Python implementations of some interesting patterns and techniques used i
 - [X] Bloom Filter
 - [X] Merkle Tree
 - [X] Consistent Hashing
-- [X] Map Reduce
+- [X] Map Reduce: Uses 'concurrent.futures' to simulate parallelism.
+- [X] Gossip Protocol: Uses 'asyncio' to simulate concurrency.
 - [ ] CRDT
 - [ ] Vector Clocks
 - [ ] Paxos/Raft
-- [ ] Gossip Protocol
+
 
 Building as a Django app to perhaps enhance with a React front-end to visualize some of these.
